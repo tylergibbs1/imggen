@@ -1,6 +1,6 @@
 import type { OutputFormat } from "./types";
 
-export function logSlideDone(
+export function logDone(
   format: OutputFormat,
   imagePath: string,
   elapsedMs: number,
@@ -15,7 +15,7 @@ export function logSlideDone(
   }
 }
 
-export function logSlideFail(
+export function logFail(
   format: OutputFormat,
   message: string,
   elapsedMs: number,
@@ -24,40 +24,6 @@ export function logSlideFail(
     console.error(
       JSON.stringify({ status: "fail", error: message, ms: elapsedMs }),
     );
-  } else {
-    console.error(`fail: ${message}`);
-  }
-}
-
-export function logAssembleDone(
-  format: OutputFormat,
-  outputPath: string,
-  slideCount: number,
-  bytes: number,
-): void {
-  if (format === "json") {
-    console.log(
-      JSON.stringify({
-        status: "done",
-        output: outputPath,
-        slides: slideCount,
-        bytes,
-      }),
-    );
-  } else {
-    const mb = (bytes / 1_000_000).toFixed(1);
-    console.log(
-      `done: ${outputPath} (${slideCount} slide${slideCount === 1 ? "" : "s"}, ${mb} MB)`,
-    );
-  }
-}
-
-export function logAssembleFail(
-  format: OutputFormat,
-  message: string,
-): void {
-  if (format === "json") {
-    console.error(JSON.stringify({ status: "fail", error: message }));
   } else {
     console.error(`fail: ${message}`);
   }

@@ -25,13 +25,12 @@ Layout and structure:
 - Pure black background is mandatory and non-negotiable
 - Sharp corners everywhere, no rounded edges, no shadows, no ornamentation
 - Clear visual hierarchy: the key data point is largest, everything else supports it
-- Single focal point per infographic, one dominant takeaway the viewer locks onto immediately
+- Single focal point per image, one dominant takeaway the viewer locks onto immediately
 - Generous negative space (black space) surrounding every element, nothing feels crowded
 - Every element earns its place, if removing it changes nothing, it shouldn't be there
 - Harmony between all elements, nothing feels disconnected or arbitrary
-- The entire infographic should read as one unified composition, not separate pieces arranged on a page
+- The entire image should read as one unified composition, not separate pieces arranged on a page
 - Main takeaway graspable in seconds, treat it like a billboard
-- Aspect ratio: 16:9
 
 `,
   },
@@ -39,7 +38,7 @@ Layout and structure:
   apple: {
     name: "apple",
     description: "Clean, minimal Apple keynote aesthetic",
-    prefix: `A slide designed in Apple's signature keynote presentation style, guided by the Human Interface Guidelines' three pillars: Clarity (every element legible at a glance), Deference (the interface gets out of the way — content is the star, not the chrome), and Depth (visual layers and subtle motion convey hierarchy). Aspect ratio: 16:9.
+    prefix: `A visual designed in Apple's signature style, guided by the Human Interface Guidelines' three pillars: Clarity (every element legible at a glance), Deference (the interface gets out of the way — content is the star, not the chrome), and Depth (visual layers and subtle motion convey hierarchy).
 Background: Pure white (#FFFFFF) or very soft warm gray (#F5F5F7), perfectly clean, no texture, no grain, no gradients. The background defers completely to the content.
 Typography:
 - Headline in SF Pro Display (used at 20pt and above), rendered in near-black (#1D1D1F), large and confident with generous letter spacing. Weights range from Ultralight to Black — use Semibold or Bold for headlines
@@ -61,11 +60,10 @@ Visual style:
 - No clip art, no stock illustration style, no busy graphics
 - Every detail is considered: optical alignment, concentric rounded corners (child radius smaller than parent so curves nest), smooth transitions that feel natural and physical
 Layout:
-- Extreme negative space is mandatory. The slide should breathe
+- Extreme negative space is mandatory. The image should breathe
 - Center-weighted or left-aligned composition, never cluttered
-- One idea per slide, one focal point, instant comprehension
+- One idea per image, one focal point, instant comprehension
 - No borders, no boxes, no dividers unless they serve a clear structural purpose
-- Controls and elements fit concentric with rounded corners of the frame — hardware and software in harmony
 - The overall impression should be: calm, premium, effortless clarity. The interface disappears and the idea shines through
 
 `,
@@ -74,7 +72,7 @@ Layout:
   vercel: {
     name: "vercel",
     description: "Dark, sharp Vercel/Next.js developer aesthetic",
-    prefix: `A slide designed in Vercel's Geist design system aesthetic, rooted in Swiss design principles: simplicity, minimalism, precision, clarity, and functionality. Aspect ratio: 16:9.
+    prefix: `A visual designed in Vercel's Geist design system aesthetic, rooted in Swiss design principles: simplicity, minimalism, precision, clarity, and functionality.
 Background: Pure black (#000000), completely flat, no texture, no noise, no subtle gradients. Absolute black. Terminal-inspired precision — the void is the canvas, and the content floats on it with authority.
 Typography:
 - Headline in Geist Sans, pure white (#EDEDED), large, tight letter-spacing, bold weight (700–900), Title Case
@@ -93,26 +91,22 @@ Color (exact Geist dark-mode tokens):
 - Destructive: #FF5B5B
 - Chart palette when data visualization is needed: amber #FFAE04, blue #2671F4, gray #747474, dim #525252, light #E4E4E4
 - No gradients. No glow effects. No colored fills beyond the token system. Purely flat, solid colors
-- The accent color for emphasis is pure white (#FFFFFF) — never orange, never warm colors. When the prompt says "accent," use white or bright white against the black/dark gray background
-- Horizontal rules or dividers should be white or light gray (#A4A4A4), never orange or colored
-- Monochrome foundation: white text on black, with the gray token scale for layering. The entire slide should feel cold, precise, monochrome — no warm tones anywhere
+- The accent color for emphasis is pure white (#FFFFFF) — never orange, never warm colors
+- Monochrome foundation: white text on black, with the gray token scale for layering. The entire image should feel cold, precise, monochrome — no warm tones anywhere
 Visual style:
-- Swiss grid underpins everything: structured columns and rows bring order and rhythm, the grid is itself part of the aesthetic
+- Swiss grid underpins everything: structured columns and rows bring order and rhythm
 - If diagrams are present: thin white lines, sharp corners, no rounded edges, minimal nodes connected by clean straight or right-angle lines
-- Terminal or code UI elements are welcome: monospace text in #090909 cards with a thin 1px border in #242424. Crisp borders: combine borders and subtle layered shadows for edge clarity
-- Layered shadows when depth is needed: small offsets with low opacity black (e.g., 0px 1px 2px hsl(0 0% 0% / 0.18)), never a single harsh drop shadow
+- Terminal or code UI elements are welcome: monospace text in #090909 cards with a thin 1px border in #242424
+- Layered shadows when depth is needed: small offsets with low opacity black, never a single harsh drop shadow
 - No glow effects, no gradients, no neon — the aesthetic is flat, precise, and monochrome
 - No illustrations, no icons unless geometric and minimal, no imagery that feels soft or friendly
 - Everything should feel engineered, precise, and slightly futuristic
-- Optical alignment: adjust \u00B11px when perception beats geometry. Every element aligns deliberately to a grid, baseline, or edge
-- Nested radii: if a rounded element sits inside another, the child radius is smaller so curves stay concentric
 Layout:
-- Generous black space surrounding every element — the slide should breathe
+- Generous black space surrounding every element — the image should breathe
 - Grid-aligned with visible rhythm, nothing feels arbitrarily placed
-- One concept per slide, one immediate takeaway
+- One concept per image, one immediate takeaway
 - No decorative elements, no ornamental lines
-- Deliberate alignment: every element aligns with something intentionally, no accidental positioning
-- Balance contrast in lockups: when text and icons sit side by side, adjust weight so they don't clash
+- Deliberate alignment: every element aligns with something intentionally
 - The overall impression should be: restraint, developer focus, trustworthy, fast
 Copy:
 - Active voice, concise, action-oriented

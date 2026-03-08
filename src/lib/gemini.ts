@@ -8,9 +8,10 @@ interface GenerateImageResult {
   text?: string;
 }
 
-export async function generateSlideImage(
+export async function generateImage(
   prompt: string,
   model?: string,
+  aspectRatio?: string,
 ): Promise<GenerateImageResult> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -25,7 +26,7 @@ export async function generateSlideImage(
     config: {
       responseModalities: ["IMAGE", "TEXT"],
       imageConfig: {
-        aspectRatio: "16:9",
+        aspectRatio: aspectRatio as any,
       },
     },
   });

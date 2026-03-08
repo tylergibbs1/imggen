@@ -1,56 +1,36 @@
 #!/usr/bin/env bun
 
-import { runSlide } from "./commands/slide";
-import { runAssemble } from "./commands/assemble";
+import { runGenerate } from "./commands/generate";
 import type { OutputFormat } from "./lib/types";
 import { EXIT_INPUT_ERROR } from "./lib/types";
 
-const HELP = `slidegen — generate slide images and assemble PowerPoint decks
-
-Workflow:
-  slidegen slide "Your prompt here"     Generate a slide image
-  slidegen assemble ./slides            Assemble images into a .pptx
-
-Commands:
-  slide    Generate a single slide image from a text prompt
-  assemble Combine a directory of images into a PowerPoint file
-
-Environment:
-  GEMINI_API_KEY   Google Gemini API key (required for slide command)
-
-Exit codes:
-  0  Success
-  1  Generation / assembly failure
-  2  Input error (missing prompt, bad arguments)`;
-
-const SLIDE_HELP = `slidegen slide — generate a slide image from a text prompt
+const HELP = `imggen — generate images from text prompts using Google Gemini
 
 Usage:
-  slidegen slide <prompt> [options]
-  echo "prompt" | slidegen slide [options]
+  imggen <prompt> [options]
+  echo "prompt" | imggen [options]
 
 Options:
-  -d, --dir <path>     Output directory (default: ./slides)
-  -n, --name <name>    File name without extension (default: auto-increment)
-  -s, --style <name>   Built-in style preset (engineer, apple, vercel)
-  -m, --model <model>  Gemini model to use
-  -f, --format <fmt>   Output format: text or json (default: text)
-  -h, --help           Show this help
+  -d, --dir <path>           Output directory (default: ./images)
+  -n, --name <name>          File name without extension (default: auto-increment)
+  -s, --style <name>         Built-in style preset (engineer, apple, vercel)
+  -a, --aspect-ratio <ratio> Aspect ratio (default: 1:1)
+  -m, --model <model>        Gemini model to use
+  -f, --format <fmt>         Output format: text or json (default: text)
+  -h, --help                 Show this help
 
 Styles:
   engineer   Dark engineering notebook, white line art, orange (#F97316) accent
   apple      Clean white keynote, SF Pro typography, blue (#0071E3) accent
-  vercel     Dark developer aesthetic, sharp lines, monochrome with glow`;
+  vercel     Dark developer aesthetic, sharp lines, monochrome with glow
 
-const ASSEMBLE_HELP = `slidegen assemble — combine images into a PowerPoint file
+Environment:
+  GEMINI_API_KEY   Google Gemini API key (required)
 
-Usage:
-  slidegen assemble <images_dir> [options]
-
-Options:
-  -o, --output <path>  Output file path (default: ./deck.pptx)
-  -f, --format <fmt>   Output format: text or json (default: text)
-  -h, --help           Show this help`;
+Exit codes:
+  0  Success
+  1  Generation failure
+  2  Input error (missing prompt, bad arguments)`;
 
 function parseFlag(args: string[], short: string, long: string): string | undefined {
   for (let i = 0; i < args.length; i++) {
@@ -83,61 +63,30 @@ async function readStdin(): Promise<string> {
 async function main(): Promise<number> {
   const args = process.argv.slice(2);
 
-  if (args.length === 0 || args[0] === "-h" || args[0] === "--help") {
+  if (args.length === 0 || hasFlag(args, "-h", "--help")) {
     console.log(HELP);
     return 0;
   }
 
-  const command = args.shift();
+  const dir = parseFlag(args, "-d", "--dir") ?? "./images";
+  const name = parseFlag(args, "-n", "--name");
+  const style = parseFlag(args, "-s", "--style");
+  const aspectRatio = parseFlag(args, "-a", "--aspect-ratio") ?? "1:1";
+  const model = parseFlag(args, "-m", "--model") ?? "gemini-3-pro-image-preview";
+  const format = (parseFlag(args, "-f", "--format") ?? "text") as OutputFormat;
 
-  if (command === "slide") {
-    if (hasFlag(args, "-h", "--help")) {
-      console.log(SLIDE_HELP);
-      return 0;
-    }
-
-    const dir = parseFlag(args, "-d", "--dir") ?? "./slides";
-    const name = parseFlag(args, "-n", "--name");
-    const style = parseFlag(args, "-s", "--style");
-    const model = parseFlag(args, "-m", "--model") ?? "gemini-3-pro-image-preview";
-    const format = (parseFlag(args, "-f", "--format") ?? "text") as OutputFormat;
-
-    let prompt = args.join(" ");
-    if (!prompt && !process.stdin.isTTY) {
-      prompt = await readStdin();
-    }
-
-    if (!prompt) {
-      console.error("Error: No prompt provided. Pass as argument or pipe via stdin.");
-      console.error('Usage: slidegen slide "Your prompt here"');
-      return EXIT_INPUT_ERROR;
-    }
-
-    return runSlide({ prompt, dir, name, style, model, format });
+  let prompt = args.join(" ");
+  if (!prompt && !process.stdin.isTTY) {
+    prompt = await readStdin();
   }
 
-  if (command === "assemble") {
-    if (hasFlag(args, "-h", "--help")) {
-      console.log(ASSEMBLE_HELP);
-      return 0;
-    }
-
-    const output = parseFlag(args, "-o", "--output") ?? "./deck.pptx";
-    const format = (parseFlag(args, "-f", "--format") ?? "text") as OutputFormat;
-    const imagesDir = args[0] ?? "";
-
-    if (!imagesDir) {
-      console.error("Error: No images directory provided.");
-      console.error("Usage: slidegen assemble <images_dir>");
-      return EXIT_INPUT_ERROR;
-    }
-
-    return runAssemble({ imagesDir, output, format });
+  if (!prompt) {
+    console.error("Error: No prompt provided. Pass as argument or pipe via stdin.");
+    console.error('Usage: imggen "Your prompt here"');
+    return EXIT_INPUT_ERROR;
   }
 
-  console.error(`Unknown command: ${command}`);
-  console.error("Run 'slidegen --help' for usage.");
-  return EXIT_INPUT_ERROR;
+  return runGenerate({ prompt, dir, name, style, model, format, aspectRatio });
 }
 
 main().then((code) => process.exit(code));
