@@ -1,8 +1,10 @@
 import { mkdir, readdir, writeFile } from "fs/promises";
 import { join, extname } from "path";
-import { generateImage } from "../lib/gemini";
-import { logDone, logFail } from "../lib/logger";
-import { getStyle } from "../lib/styles";
+import { generateImage as generateWithGemini } from "../lib/gemini";
+import { generateImage as generateWithOpenAI, isOpenAIModel } from "../lib/openai";
+import { logDone, logDryRun, logFail } from "../lib/logger";
+import { getStyle, listStyles } from "../lib/styles";
+import { validateDir, validateName, ValidationError } from "../lib/validate";
 import type { GenerateOptions } from "../lib/types";
 import { EXIT_SUCCESS, EXIT_GENERATION_FAIL, EXIT_INPUT_ERROR } from "../lib/types";
 
@@ -38,18 +40,33 @@ async function getNextName(dir: string): Promise<string> {
 }
 
 export async function runGenerate(opts: GenerateOptions): Promise<number> {
-  const { dir, model, format, aspectRatio } = opts;
+  const { format, aspectRatio, model, dryRun } = opts;
   let { prompt } = opts;
 
   if (!prompt.trim()) {
-    logFail(format, "No prompt provided", 0);
+    logFail(format, "No prompt provided", 0, { code: "MISSING_PROMPT" });
     return EXIT_INPUT_ERROR;
+  }
+
+  let absDir: string;
+  try {
+    absDir = validateDir(opts.dir);
+    if (opts.name !== undefined) validateName(opts.name);
+  } catch (err) {
+    if (err instanceof ValidationError) {
+      logFail(format, err.message, 0, { code: err.code, suggestion: err.suggestion });
+      return EXIT_INPUT_ERROR;
+    }
+    throw err;
   }
 
   if (opts.style) {
     const style = getStyle(opts.style);
     if (!style) {
-      logFail(format, `Unknown style: ${opts.style}. Available: engineer, apple, vercel`, 0);
+      logFail(format, `Unknown style: ${opts.style}`, 0, {
+        code: "UNKNOWN_STYLE",
+        suggestion: `Available: ${listStyles().join(", ")}`,
+      });
       return EXIT_INPUT_ERROR;
     }
     prompt = style.prefix + prompt;
@@ -58,13 +75,29 @@ export async function runGenerate(opts: GenerateOptions): Promise<number> {
   const start = performance.now();
 
   try {
-    await mkdir(dir, { recursive: true });
+    await mkdir(absDir, { recursive: true });
 
-    const name = opts.name ?? (await getNextName(dir));
-    const result = await generateImage(prompt, model, aspectRatio);
+    const name = opts.name ?? (await getNextName(absDir));
+    const provider = isOpenAIModel(model) ? "openai" : "gemini";
+
+    if (dryRun) {
+      const dest = join(absDir, `${name}.png`);
+      logDryRun(format, {
+        dest,
+        model,
+        provider,
+        aspectRatio,
+        promptChars: prompt.length,
+        style: opts.style,
+      });
+      return EXIT_SUCCESS;
+    }
+
+    const generate = provider === "openai" ? generateWithOpenAI : generateWithGemini;
+    const result = await generate(prompt, model, aspectRatio);
     const ext = mimeToExt(result.mimeType);
     const filename = `${name}${ext}`;
-    const filePath = join(dir, filename);
+    const filePath = join(absDir, filename);
 
     await writeFile(filePath, result.imageData);
 
@@ -74,7 +107,7 @@ export async function runGenerate(opts: GenerateOptions): Promise<number> {
   } catch (err) {
     const elapsed = Math.round(performance.now() - start);
     const message = err instanceof Error ? err.message : String(err);
-    logFail(format, message, elapsed);
+    logFail(format, message, elapsed, { code: "GENERATION_FAILED" });
     return EXIT_GENERATION_FAIL;
   }
 }

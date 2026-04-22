@@ -12,4 +12,5 @@ export interface GenerateOptions {
   format: OutputFormat;
   style?: string;
   aspectRatio: string;
+  dryRun?: boolean;
 }
