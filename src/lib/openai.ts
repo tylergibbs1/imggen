@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { getApiKey } from "./config";
 
 interface GenerateImageResult {
   imageData: Buffer;
@@ -45,9 +46,9 @@ export async function generateImage(
   model: string,
   aspectRatio?: string,
 ): Promise<GenerateImageResult> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = await getApiKey("openai", "OPENAI_API_KEY");
   if (!apiKey) {
-    throw new Error("OPENAI_API_KEY environment variable is not set");
+    throw new Error("OpenAI API key is not set. Set OPENAI_API_KEY or run: imggen key set openai <api-key>");
   }
 
   const client = new OpenAI({ apiKey });

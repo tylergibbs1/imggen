@@ -1,9 +1,10 @@
 import { mkdir, readdir, writeFile } from "fs/promises";
 import { join, extname } from "path";
+import { ConfigError, getApiKeySource } from "../lib/config";
 import { generateImage as generateWithGemini } from "../lib/gemini";
 import { generateImage as generateWithOpenAI, isOpenAIModel } from "../lib/openai";
 import { logDone, logDryRun, logFail } from "../lib/logger";
-import { getStyle, listStyles } from "../lib/styles";
+import { getStyleOrTheme, listStyleAndThemeNames } from "../lib/styles";
 import { validateDir, validateName, ValidationError } from "../lib/validate";
 import type { GenerateOptions } from "../lib/types";
 import { EXIT_SUCCESS, EXIT_GENERATION_FAIL, EXIT_INPUT_ERROR } from "../lib/types";
@@ -61,11 +62,11 @@ export async function runGenerate(opts: GenerateOptions): Promise<number> {
   }
 
   if (opts.style) {
-    const style = getStyle(opts.style);
+    const style = await getStyleOrTheme(opts.style);
     if (!style) {
       logFail(format, `Unknown style: ${opts.style}`, 0, {
         code: "UNKNOWN_STYLE",
-        suggestion: `Available: ${listStyles().join(", ")}`,
+        suggestion: `Available: ${(await listStyleAndThemeNames()).join(", ")}`,
       });
       return EXIT_INPUT_ERROR;
     }
@@ -79,6 +80,7 @@ export async function runGenerate(opts: GenerateOptions): Promise<number> {
 
     const name = opts.name ?? (await getNextName(absDir));
     const provider = isOpenAIModel(model) ? "openai" : "gemini";
+    const envVar = provider === "openai" ? "OPENAI_API_KEY" : "GEMINI_API_KEY";
 
     if (dryRun) {
       const dest = join(absDir, `${name}.png`);
@@ -86,6 +88,7 @@ export async function runGenerate(opts: GenerateOptions): Promise<number> {
         dest,
         model,
         provider,
+        credential: await getApiKeySource(provider, envVar),
         aspectRatio,
         promptChars: prompt.length,
         style: opts.style,
@@ -106,6 +109,13 @@ export async function runGenerate(opts: GenerateOptions): Promise<number> {
     return EXIT_SUCCESS;
   } catch (err) {
     const elapsed = Math.round(performance.now() - start);
+    if (err instanceof ConfigError) {
+      logFail(format, err.message, elapsed, {
+        code: err.code,
+        suggestion: err.suggestion,
+      });
+      return EXIT_INPUT_ERROR;
+    }
     const message = err instanceof Error ? err.message : String(err);
     logFail(format, message, elapsed, { code: "GENERATION_FAILED" });
     return EXIT_GENERATION_FAIL;

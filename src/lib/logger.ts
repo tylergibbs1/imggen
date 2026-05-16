@@ -9,6 +9,7 @@ export interface DryRunInfo {
   dest: string;
   model: string;
   provider: "gemini" | "openai";
+  credential: "env" | "local" | "missing";
   aspectRatio?: string;
   promptChars: number;
   style?: string;

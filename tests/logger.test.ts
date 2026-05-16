@@ -76,6 +76,7 @@ describe("logger", () => {
         dest: "/abs/01.png",
         model: "gpt-image-2",
         provider: "openai",
+        credential: "missing",
         promptChars: 42,
       });
       expect(logSpy).toHaveBeenCalledWith(
@@ -88,6 +89,7 @@ describe("logger", () => {
         dest: "/abs/01.png",
         model: "gpt-image-2",
         provider: "openai",
+        credential: "local",
         aspectRatio: "1:1",
         promptChars: 42,
       });
@@ -97,6 +99,7 @@ describe("logger", () => {
         dest: "/abs/01.png",
         model: "gpt-image-2",
         provider: "openai",
+        credential: "local",
         aspectRatio: "1:1",
         promptChars: 42,
       });

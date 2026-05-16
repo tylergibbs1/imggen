@@ -126,3 +126,19 @@ export function getStyle(name: string): Style | undefined {
 export function listStyles(): string[] {
   return Object.keys(STYLES);
 }
+
+export async function getSavedTheme(name: string): Promise<Style | undefined> {
+  const { loadConfig } = await import("./config");
+  return (await loadConfig()).themes?.[name.toLowerCase()];
+}
+
+export async function getStyleOrTheme(name: string): Promise<Style | undefined> {
+  const normalized = name.toLowerCase();
+  return getStyle(normalized) ?? (await getSavedTheme(normalized));
+}
+
+export async function listStyleAndThemeNames(): Promise<string[]> {
+  const { loadConfig } = await import("./config");
+  const themes = Object.keys((await loadConfig()).themes ?? {});
+  return [...listStyles(), ...themes].sort();
+}

@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { getApiKey } from "./config";
 
 const DEFAULT_MODEL = "gemini-3-pro-image-preview";
 
@@ -13,9 +14,9 @@ export async function generateImage(
   model?: string,
   aspectRatio?: string,
 ): Promise<GenerateImageResult> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = await getApiKey("gemini", "GEMINI_API_KEY");
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY environment variable is not set");
+    throw new Error("Gemini API key is not set. Set GEMINI_API_KEY or run: imggen key set gemini <api-key>");
   }
 
   const ai = new GoogleGenAI({ apiKey });
